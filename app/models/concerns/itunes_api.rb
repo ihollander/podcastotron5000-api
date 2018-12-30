@@ -10,7 +10,7 @@ module ItunesAPI
         endpoint: "/search",
         params: {
           media: "podcast",
-          term: CGI::escape(term)
+          term: term
         }
       )
     end
@@ -25,6 +25,7 @@ module ItunesAPI
     end
 
     def self.request(http_method:, endpoint:, params: {})
+      Rails.logger.debug "iTunes request params: #{params}"
       response = self.client.public_send(http_method, endpoint, params)
       Oj.load(response.body)
     end

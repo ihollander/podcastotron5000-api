@@ -1,5 +1,5 @@
 class Api::V1::SubscriptionsController < ApplicationController
-  before_action :find_user, only: [:create, :index]
+  before_action :current_user
 
   def index
     @subscriptions = @user.subscriptions
@@ -9,10 +9,16 @@ class Api::V1::SubscriptionsController < ApplicationController
   def create
     @subscription = @user.subscriptions.create(subscription_params)
     if @subscription.valid?
-      render json: @subscription, status: 201
+      render json: @subscription, status: :created
     else
       render json: { errors: @subscription.errors.full_messages }, status: :unprocessable_entity
     end
+  end
+
+  def destroy
+    @subscription = Subscription.find_by(id: params[:id])
+    @subscription.destroy
+    render body: nil, status: :no_content
   end
 
   private
@@ -21,12 +27,8 @@ class Api::V1::SubscriptionsController < ApplicationController
     params.require(:subscription).permit(:podcast_id)
   end
 
-  def find_user
+  def current_user
     @user = User.find_by(id: params[:user_id])
-  end
-
-  def find_subscription
-    @user = User.find_by(id: params[:id])
   end
 
 end

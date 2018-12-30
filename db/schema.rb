@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_12_27_152651) do
+ActiveRecord::Schema.define(version: 2018_12_29_153713) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -19,12 +19,13 @@ ActiveRecord::Schema.define(version: 2018_12_27_152651) do
     t.bigint "podcast_id"
     t.string "title"
     t.string "description"
-    t.string "pubDate"
     t.string "audioLink"
     t.string "audioType"
     t.string "audioLength"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "pubDate"
+    t.datetime "pubDateParsed"
     t.index ["podcast_id"], name: "index_episodes_on_podcast_id"
   end
 
@@ -43,6 +44,15 @@ ActiveRecord::Schema.define(version: 2018_12_27_152651) do
     t.index ["podcast_id"], name: "index_podcast_genres_on_podcast_id"
   end
 
+  create_table "podcast_searches", force: :cascade do |t|
+    t.bigint "podcast_id"
+    t.bigint "search_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["podcast_id"], name: "index_podcast_searches_on_podcast_id"
+    t.index ["search_id"], name: "index_podcast_searches_on_search_id"
+  end
+
   create_table "podcasts", force: :cascade do |t|
     t.string "name"
     t.string "artistName"
@@ -56,6 +66,15 @@ ActiveRecord::Schema.define(version: 2018_12_27_152651) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "search_term"
+    t.integer "trackCount"
+    t.string "slug", null: false
+    t.index ["slug"], name: "index_podcasts_on_slug", unique: true
+  end
+
+  create_table "searches", force: :cascade do |t|
+    t.string "term"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "subscriptions", force: :cascade do |t|
@@ -71,11 +90,14 @@ ActiveRecord::Schema.define(version: 2018_12_27_152651) do
     t.string "name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "google_id"
   end
 
   add_foreign_key "episodes", "podcasts"
   add_foreign_key "podcast_genres", "genres"
   add_foreign_key "podcast_genres", "podcasts"
+  add_foreign_key "podcast_searches", "podcasts"
+  add_foreign_key "podcast_searches", "searches"
   add_foreign_key "subscriptions", "podcasts"
   add_foreign_key "subscriptions", "users"
 end

@@ -1,5 +1,5 @@
 class UserSerializer < ActiveModel::Serializer
   attributes :id, :name
 
-  has_many :podcasts
+  # has_many :podcasts
 end

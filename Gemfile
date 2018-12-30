@@ -31,6 +31,9 @@ gem 'rack-cors'
 # for...serializing
 gem 'active_model_serializers'
 
+# date time parsing
+gem 'chronic'
+
 # httpclient for API request handling
 gem 'faraday'
 

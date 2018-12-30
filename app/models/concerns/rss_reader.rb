@@ -1,5 +1,6 @@
 require 'rss'
 require 'open-uri'
+require 'chronic'
 
 module RssReader
 
@@ -7,22 +8,22 @@ module RssReader
 
     def self.get_channel_info(feed_url)
       feed = self.parse(feed_url)
+      episodes = self.get_episodes(feed)
       {
-        title: feed.channel.title,
         link: feed.channel.link,
         description: feed.channel.description,
-        logo: feed.channel.image.url
+        episodes: episodes
       }
     end
     
-    def self.get_episodes(feed_url)
-      feed = self.parse(feed_url)
-
+    def self.get_episodes(feed)
       feed.channel.items.map do |item|
+        pubDate = Chronic.parse(item.pubDate)
         {
           title: item.title,
           description: item.description,
           pubDate: item.pubDate,
+          pubDateParsed: pubDate,
           audioLink: item.enclosure.url,
           audioType: item.enclosure.type,
           audioLength: item.enclosure.length

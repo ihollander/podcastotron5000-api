@@ -1,5 +1,14 @@
 class Api::V1::UsersController < ApplicationController
-  before_action :find_user, only: :show
+  before_action :find_user, only: [:show, :get_recent_episodes]
+
+  def google_signin
+    @user = User.find_or_create_by(google_id: params[:google_id])
+    if @user
+      render json: @user
+    else
+      render json: { message: "No user found" }, status: :not_found 
+    end
+  end
 
   def show
     if @user
