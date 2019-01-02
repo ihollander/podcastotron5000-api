@@ -1,6 +1,7 @@
 class Podcast < ApplicationRecord
   before_create :set_slug
   has_many :episodes, dependent: :destroy
+  has_many :playlists, through: :episodes
   has_many :podcast_genres, dependent: :destroy
   has_many :genres, through: :podcast_genres
   has_many :subscriptions, dependent: :destroy

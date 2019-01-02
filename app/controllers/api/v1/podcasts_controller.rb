@@ -15,7 +15,7 @@ class Api::V1::PodcastsController < ApplicationController
   def show
     if @podcast
       @podcast.update_feed 
-      render json: @podcast
+      render json: @podcast, include: "genres,subscriptions,episodes,episodes.playlists"
     else
       render json: { message: "Not found" }, status: :not_found 
     end
@@ -25,7 +25,7 @@ class Api::V1::PodcastsController < ApplicationController
     @user.podcasts.each do |podcast|
       podcast.update_feed # get latest
     end
-    @episodes = Episode.by_user(@user).recent(50)
+    @episodes = Episode.by_user(@user).recent(20)
     render json: @episodes
   end
 
