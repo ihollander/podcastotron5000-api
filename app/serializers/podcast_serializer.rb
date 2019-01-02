@@ -3,10 +3,5 @@ class PodcastSerializer < ActiveModel::Serializer
 
   has_many :episodes
   has_many :genres
-  has_many :subscriptions
-
-  def subscriptions
-    @object.subscriptions_for(@scope)
-  end
 
 end

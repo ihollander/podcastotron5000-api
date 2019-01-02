@@ -7,7 +7,6 @@ class Api::V1::PlaylistsController < ApplicationController
   end
 
   def create
-    byebug
     if params[:sort]
       my_params = playlist_params.merge(user_id: params[:user_id])
       @playlist = Playlist.create(my_params)

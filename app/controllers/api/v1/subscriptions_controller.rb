@@ -9,7 +9,8 @@ class Api::V1::SubscriptionsController < ApplicationController
   def create
     @subscription = @user.subscriptions.create(subscription_params)
     if @subscription.valid?
-      render json: @subscription, status: :created
+      @podcast = Podcast.find_by(id: params[:podcast_id])
+      render json: @podcast, status: :created, serializer: PodcastSearchSerializer
     else
       render json: { errors: @subscription.errors.full_messages }, status: :unprocessable_entity
     end

@@ -8,7 +8,7 @@ class Api::V1::PodcastsController < ApplicationController
   end
 
   def index
-    @podcasts = @user.podcasts
+    @podcasts = @user.podcasts.order(:name)
     render json: @podcasts, each_serializer: PodcastSearchSerializer
   end
 
@@ -22,10 +22,12 @@ class Api::V1::PodcastsController < ApplicationController
   end
 
   def recent
+    page = params[:page] || 1
     @user.podcasts.each do |podcast|
       podcast.update_feed # get latest
     end
-    @episodes = Episode.by_user(@user).recent(20)
+    @episodes = Episode.by_user(@user).recent().page(page).per(25)
+    response.headers['Paging-Last-Page'] = Episode.by_user(@user).page(page).last_page?
     render json: @episodes
   end
 
