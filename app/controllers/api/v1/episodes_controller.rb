@@ -1,7 +1,6 @@
 class Api::V1::EpisodesController < ApplicationController
   before_action :find_episode, only: :show
   before_action :find_episode_by_episode_id, only: [:add_playlist, :remove_playlist]
-  before_action :current_user, only: [:index, :add_playlist, :remove_playlist, :recent]
 
   # GET /episodes/:id 
   def show
@@ -12,13 +11,13 @@ class Api::V1::EpisodesController < ApplicationController
     end
   end
 
-  # GET /users/:user_id/episodes
+  # GET /episodes
   def index
     @episodes = @user.episodes
     render json: @episodes 
   end
 
-  # POST /users/:user_id/episodes/:episode_id/playlist
+  # POST /episodes/:episode_id/playlist
   def add_playlist
     @playlist = @user.playlists.create(episode: @episode)
     if @playlist.valid?
@@ -28,7 +27,7 @@ class Api::V1::EpisodesController < ApplicationController
     end
   end
 
-  # DELETE /users/:user_id/episodes/:episode_id/playlist
+  # DELETE /episodes/:episode_id/playlist
   def remove_playlist
     playlist = Playlist.find_by(user: @user, episode: @episode)
     if playlist
@@ -39,7 +38,7 @@ class Api::V1::EpisodesController < ApplicationController
     end
   end
 
-  # GET /users/:user_id/episodes/recent
+  # GET /episodes/recent
   def recent
     page = params[:page] || 1
     @user.podcasts.each do |podcast|
