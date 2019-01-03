@@ -1,39 +1,58 @@
 class Api::V1::PodcastsController < ApplicationController
-  before_action :find_podcast, only: [:show, :remove_subscription]
-  before_action :current_user
+  before_action :find_podcast_by_slug, only: :show
+  before_action :find_podcast_by_id, only: [:subscribe, :unsubscribe]
+  before_action :current_user, only: [:index, :create, :destroy, :subscribe, :unsubscribe]
 
+  # GET /podcasts/search/:term
   def search
     @podcasts = Podcast.find_or_create_from_api(params[:term])
-    render json: @podcasts, each_serializer: PodcastSearchSerializer
+    render json: @podcasts
   end
 
-  def index
-    @podcasts = @user.podcasts.order(:name)
-    render json: @podcasts, each_serializer: PodcastSearchSerializer
-  end
-
+  # GET /podcasts/:id
   def show
     if @podcast
       @podcast.update_feed 
-      render json: @podcast, include: "genres,subscriptions,episodes,episodes.playlists"
+      render json: @podcast, include: "genres,episodes"
     else
       render json: { message: "Not found" }, status: :not_found 
     end
   end
 
-  def recent
-    page = params[:page] || 1
-    @user.podcasts.each do |podcast|
-      podcast.update_feed # get latest
+  # GET /users/:user_id/podcasts/
+  def index
+    @podcasts = @user.podcasts.order(:name)
+    render json: @podcasts
+  end
+
+  # POST /users/:user_id/podcasts/:podcast_id/subscription
+  def subscribe
+    @subscription = @user.subscriptions.create(podcast: @podcast)
+    if @subscription.valid?
+      render json: @podcast, status: :created
+    else
+      render json: { errors: @subscription.errors.full_messages }, status: :unprocessable_entity
     end
-    @episodes = Episode.by_user(@user).recent().page(page).per(25)
-    response.headers['Paging-Last-Page'] = Episode.by_user(@user).page(page).last_page?
-    render json: @episodes
+  end
+
+  # DELETE /users/:user_id/podcasts/:podcast_id/subscription
+  def unsubscribe
+    subscription = Subscription.find_by(user: @user, podcast: @podcast)
+    if subscription
+      subscription.destroy
+      render body: nil, status: :no_content
+    else
+      render json: { message: "Subscription not found" }, status: :not_found  
+    end
   end
 
   private
 
-  def find_podcast
+  def find_podcast_by_id
+    @podcast = Podcast.find_by(id: params[:podcast_id])
+  end
+
+  def find_podcast_by_slug
     @podcast = Podcast.find_by(slug: params[:id])
   end
 

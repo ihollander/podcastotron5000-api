@@ -9,10 +9,6 @@ class Podcast < ApplicationRecord
   has_many :podcast_searches, dependent: :destroy
   has_many :searches, through: :podcast_searches
 
-  def subscriptions_for(user)
-    self.subscriptions.where(user: user)
-  end
-
   def update_feed
     latest_episode = self.episodes.maximum('pubDateParsed')
     latest_episode = DateTime.parse(latest_episode.to_s) rescue nil 

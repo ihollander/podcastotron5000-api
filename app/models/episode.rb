@@ -6,7 +6,4 @@ class Episode < ApplicationRecord
   scope :by_user, -> (user) { joins(:podcast).joins(:subscriptions).where(subscriptions: { user: user }) }
   scope :recent, -> () { order(pubDateParsed: :desc) }
 
-  def playlists_for(user)
-    self.playlists.where(user: user)
-  end
 end

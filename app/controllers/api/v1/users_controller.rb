@@ -1,15 +1,19 @@
 class Api::V1::UsersController < ApplicationController
-  before_action :find_user, only: [:show, :remove_subscription]
+  before_action :find_user, only: [:show]
 
-  def google_signin
-    @user = User.find_or_create_by(google_id: params[:google_id])
-    if @user
-      render json: @user
-    else
-      render json: { message: "No user found" }, status: :not_found 
-    end
+  # POST 'google/:token', to: 'users#google'
+  def google
+    # validator = GoogleIDToken::Validator.new
+    # begin
+    #   payload = validator.check(token, required_audience, optional_client_id)
+    #   email = payload['email']
+    # rescue GoogleIDToken::ValidationError => e
+    #   report "Cannot validate: #{e}"
+    # end
   end
 
+
+  # GET /users/:id 
   def show
     if @user
       render json: @user
@@ -18,8 +22,9 @@ class Api::V1::UsersController < ApplicationController
     end
   end
 
+  # POST /users
   def create
-    @user = User.create(user_params)
+    @user = User.find_or_create_by(google_id: params[:google_id])
     if @user.valid?
       render json: @user, status: 201
     else
@@ -27,22 +32,7 @@ class Api::V1::UsersController < ApplicationController
     end
   end
 
-
-  def remove_subscription
-    subscription = @user.subscriptions.find_by(podcast_id: params[:podcast_id])
-    if subscription
-      subscription.destroy
-      render body: nil, status: :no_content
-    else
-      render json: { message: "Subscription not found" }, status: :not_found  
-    end
-  end
-
   private
-
-  def user_params
-    params.require(:user).permit(:name)
-  end
 
   def find_user
     @user = User.find_by(id: params[:id])
