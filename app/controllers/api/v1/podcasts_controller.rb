@@ -1,7 +1,6 @@
 class Api::V1::PodcastsController < ApplicationController
   before_action :find_podcast_by_slug, only: :show
   before_action :find_podcast_by_id, only: [:subscribe, :unsubscribe]
-  before_action :current_user, only: [:index, :create, :destroy, :subscribe, :unsubscribe]
 
   # GET /podcasts/search/:term
   def search
@@ -19,13 +18,13 @@ class Api::V1::PodcastsController < ApplicationController
     end
   end
 
-  # GET /users/:user_id/podcasts/
+  # GET /podcasts
   def index
     @podcasts = @user.podcasts.order(:name)
     render json: @podcasts
   end
 
-  # POST /users/:user_id/podcasts/:podcast_id/subscription
+  # POST /podcasts/:podcast_id/subscription
   def subscribe
     @subscription = @user.subscriptions.create(podcast: @podcast)
     if @subscription.valid?
@@ -35,7 +34,7 @@ class Api::V1::PodcastsController < ApplicationController
     end
   end
 
-  # DELETE /users/:user_id/podcasts/:podcast_id/subscription
+  # DELETE /podcasts/:podcast_id/subscription
   def unsubscribe
     subscription = Subscription.find_by(user: @user, podcast: @podcast)
     if subscription
@@ -54,10 +53,6 @@ class Api::V1::PodcastsController < ApplicationController
 
   def find_podcast_by_slug
     @podcast = Podcast.find_by(slug: params[:id])
-  end
-
-  def current_user
-    @user = User.find_by(id: params[:user_id])
   end
 
 end
