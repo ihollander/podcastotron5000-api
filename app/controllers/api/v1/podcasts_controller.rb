@@ -1,5 +1,5 @@
 class Api::V1::PodcastsController < ApplicationController
-  before_action :find_podcast, only: :show
+  before_action :find_podcast, only: [:show, :remove_subscription]
   before_action :current_user
 
   def search

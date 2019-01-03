@@ -1,5 +1,5 @@
 class Api::V1::UsersController < ApplicationController
-  before_action :find_user, only: [:show, :get_recent_episodes]
+  before_action :find_user, only: [:show, :remove_subscription]
 
   def google_signin
     @user = User.find_or_create_by(google_id: params[:google_id])
@@ -24,6 +24,17 @@ class Api::V1::UsersController < ApplicationController
       render json: @user, status: 201
     else
       render json: { errors: @user.errors.full_messages }, status: :unprocessable_entity
+    end
+  end
+
+
+  def remove_subscription
+    subscription = @user.subscriptions.find_by(podcast_id: params[:podcast_id])
+    if subscription
+      subscription.destroy
+      render body: nil, status: :no_content
+    else
+      render json: { message: "Subscription not found" }, status: :not_found  
     end
   end
 
