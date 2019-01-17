@@ -1,5 +1,3 @@
-require "cgi"
-
 module ItunesAPI
   class ApiClient
     API_URL = "https://itunes.apple.com"

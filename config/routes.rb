@@ -6,6 +6,7 @@ Rails.application.routes.draw do
       # POST /users -> find_or_create_by :google_id (add params as body in POST)
       resources :users, only: [:create]
       post '/login', to: 'auth#create'
+      post '/google_oauth', to: 'auth#google_oauth'
       get '/profile', to: 'users#profile'
 
       # PLAYLIST REDUCER and RECENT EPISODES REDUCER

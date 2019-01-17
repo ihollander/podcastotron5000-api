@@ -1,5 +1,5 @@
 class Api::V1::AuthController < ApplicationController
-  skip_before_action :authorized, only: [:create]
+  skip_before_action :authorized, only: [:create, :google_oauth]
  
   # POST /login
   def create
@@ -11,6 +11,27 @@ class Api::V1::AuthController < ApplicationController
       render json: { user: UserSerializer.new(@user), jwt: token }, status: :accepted
     else
       render json: { message: 'Invalid username or password' }, status: :unauthorized
+    end
+  end
+
+  def google_oauth
+    token = params[:token]
+    client_id = Rails.application.credentials.google_oauth[:client_id]
+    validator = GoogleIDToken::Validator.new
+    begin
+      payload = validator.check(token, client_id, client_id)
+      email = payload['email']
+      @user = User.find_or_create_by(username: email)
+      if @user.valid?
+        @token = encode_token(user_id: @user.id)
+        render json: { user: UserSerializer.new(@user), jwt: @token }, status: :created
+      else
+        byebug
+        render json: { message: 'failed to create user' }, status: :not_acceptable
+      end
+    rescue GoogleIDToken::ValidationError => e
+      byebug
+      report "Cannot validate: #{e}"
     end
   end
  
